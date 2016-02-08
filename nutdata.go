@@ -6,5 +6,8 @@ import (
 )
 
 func main(){
-  fmt.Println("Hello World!")
+	for _, m := range MeasureReference {
+		RegisterMeasure(m)
+	}
+	fmt.Print(MeasureMap)
 }
