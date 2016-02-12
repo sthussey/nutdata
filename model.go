@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 )
 
 // A Unit is a measure or weight unit including a slice of
@@ -11,39 +12,42 @@ import (
 // is the amount of reference units in this unit. Reference
 // units are milliliters for volume and grams for mass.
 type Unit struct {
-	labels []string
-	measureType string
-	typeEquivalent float64
+	Labels []string
+	MeasureType string
+	TypeEquivalent float64
 }
 
 // A Measure is a measurement amount with an assigned
 // unit.
 type Measure struct {
   Unit
-  amount float64
+  Amount float64
 }
 
 var UnitReference = []Unit{
-	{labels: []string{"tsp","teaspoon"}, measureType: "volume", typeEquivalent: 4.92892},
-	{labels: []string{"tbsp","tablespoon"}, measureType: "volume", typeEquivalent: 14.7868},
-	{labels: []string{"fl oz","fluid ounce"}, measureType: "volume", typeEquivalent: 29.5735},
-	{labels: []string{"cup","c"}, measureType: "volume", typeEquivalent: 236.5882365},
-	{labels: []string{"pint","pt","p"}, measureType: "volume", typeEquivalent: 473.176},
-	{labels: []string{"l","litre"}, measureType: "volume", typeEquivalent: 1000},
-	{labels: []string{"ml","mils","millilitre"}, measureType: "volume", typeEquivalent: 1},
-	{labels: []string{"oz","ounce"}, measureType: "mass", typeEquivalent: 28.3495},
-	{labels: []string{"lb","pound"}, measureType: "mass", typeEquivalent: 453.592},
-	{labels: []string{"stone"}, measureType: "mass", typeEquivalent: 6350.29},
-	{labels: []string{"kg","kilogram"}, measureType: "mass", typeEquivalent: 1000},
-	{labels: []string{"g","gram"}, measureType: "mass", typeEquivalent: 1},
+	{Labels: []string{"tsp","teaspoon"}, MeasureType: "volume", TypeEquivalent: 4.92892},
+	{Labels: []string{"tbsp","tablespoon"}, MeasureType: "volume", TypeEquivalent: 14.7868},
+	{Labels: []string{"fl oz","fluid ounce"}, MeasureType: "volume", TypeEquivalent: 29.5735},
+	{Labels: []string{"cup","c"}, MeasureType: "volume", TypeEquivalent: 236.5882365},
+	{Labels: []string{"pint","pt","p"}, MeasureType: "volume", TypeEquivalent: 473.176},
+	{Labels: []string{"l","litre"}, MeasureType: "volume", TypeEquivalent: 1000},
+	{Labels: []string{"ml","mils","millilitre"}, MeasureType: "volume", TypeEquivalent: 1},
+	{Labels: []string{"oz","ounce"}, MeasureType: "mass", TypeEquivalent: 28.3495},
+	{Labels: []string{"lb","pound"}, MeasureType: "mass", TypeEquivalent: 453.592},
+	{Labels: []string{"stone"}, MeasureType: "mass", TypeEquivalent: 6350.29},
+	{Labels: []string{"kg","kilogram"}, MeasureType: "mass", TypeEquivalent: 1000},
+	{Labels: []string{"g","gram"}, MeasureType: "mass", TypeEquivalent: 1},
 }
 
+var FractionRunes = map[float64]rune {
+	.25: 
+}
 var UnitMap = make(map[string]Unit)
 
 // RegisterUnit adds a Unit struct to the Map of all valid units
 func RegisterUnit(u Unit){
   
-	for _, r := range u.labels {
+	for _, r := range u.Labels {
 		UnitMap[r] = u 
 	}
 }
@@ -59,18 +63,19 @@ func ValidUnit(label string) bool {
 
 // Stringer for Measure
 func (m Measure) String() string {
-	return fmt.Sprintf("%.2f %s", m.amount, m.labels[0])
+	return fmt.Sprintf("%.2f %s", m.Amount, m.Labels[0])
 }
 
 // Convert a Measure to a target Unit and return a new Measure
-// of the converted amount and unit
+// of the converted amount and unit. The converted value is rounded
+// to two decimal places.
 func (m Measure) Convert(target string) (new Measure,ok bool) {
 	if ValidUnit(target) {
 		newUnit := UnitMap[target]
-		if m.measureType != newUnit.measureType {
+		if m.MeasureType != newUnit.MeasureType {
 			ok = false
 		} else {
-			new.amount = (m.amount * m.typeEquivalent) / newUnit.typeEquivalent
+			new.Amount = math.Floor((m.Amount * m.TypeEquivalent * 100 + .5) / newUnit.TypeEquivalent) / 100
 			new.Unit = newUnit
 			ok = true
 		}
@@ -79,4 +84,3 @@ func (m Measure) Convert(target string) (new Measure,ok bool) {
 	}
 	return
 }
-  
