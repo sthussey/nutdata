@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"fmt"
 	"log"
+	"bufio"
 )
 
 type ConversionRequest struct {
@@ -16,7 +17,8 @@ type ConversionRequest struct {
 
 func startService(){
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", ConvertWebService)
+	router.HandleFunc("/measure/convert", ConvertWebService)
+	router.HandleFunc("/foodweight/index", IndexFoodWeightService)
 	log.Fatal(http.ListenAndServe(":8088", router))
 }
 
@@ -24,9 +26,9 @@ func startService(){
 //and a string Unit field describing the measure and a string ConvertTo field
 //describing the requested conversion unit. 
 func ConvertWebService(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") != "application/json" || r.Body == nil {
+	if r.Header.Get("Content-Type") != "application/json" || r.Body == nil || r.Method != "POST" {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w,"Invalid Reqest")
+		fmt.Fprintf(w,"Invalid Reqest: this service requests a POST request in applicaiton/json format")
 		return
 	}
 
@@ -39,7 +41,6 @@ func ConvertWebService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	fmt.Printf("amount = %d, unit = %s, convertTo: %s\n", query.Amount, query.Unit, query.ConvertTo)
 
 	if !ValidUnit(query.Unit) || !ValidUnit(query.ConvertTo) {
 		w.WriteHeader(http.StatusBadRequest)
@@ -58,4 +59,22 @@ func ConvertWebService(w http.ResponseWriter, r *http.Request) {
 	return 
 }
 
+func IndexFoodWeightService(w http.ResponseWriter, r *http.Request){
+	if r.Header.Get("Content-Type") != "text/plain" || r.Body == nil || r.Method != "POST" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w,"Invalid request: this service requires a POST request in text/plain format")
+		return
+	}
 
+	var reqBody = bufio.NewScanner(r.Body)
+
+	for reqBody.Scan() {
+		foodWeight,err := ParseUSDAFoodWeight(reqBody.Text())
+		if err != nil {
+			log.Printf("Error: Could not parse food weight record - ", err)
+		}		
+	  err = IndexUSDAFoodWeight(foodWeight)
+	}	
+
+	
+}

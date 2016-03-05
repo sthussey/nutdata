@@ -12,17 +12,35 @@ import (
 // is the amount of reference units in this unit. Reference
 // units are milliliters for volume and grams for mass.
 type Unit struct {
-	Labels []string
-	MeasureType string
-	TypeEquivalent float64
+	Labels []string `json:"labels"`
+	MeasureType string `json:"measureType,omitempty"`
+	TypeEquivalent float64 `json:"typeEquivalent"`
+}
+
+// A FoodUnit is a description of colloqial measures for a particluar
+// food and a equivalent weight in grams
+type FoodUnit struct {
+	Unit
+	FoodId string `json:"foodID"`
 }
 
 // A Measure is a measurement amount with an assigned
 // unit.
 type Measure struct {
-  Unit
-  Amount float64
+  Unit	`json:"unit"`
+  Amount float64 `json:"amount"`
 }
+
+
+// This struct represents a single record of the USDA
+// Weight File as described at the below. Some fields are omitted.
+// http://www.ars.usda.gov/SP2UserFiles/Place/80400525/Data/SR/SR28/sr28_doc.pdf
+type USDAFoodWeight struct {
+	FoodID string `json:"foodID"`
+	Amount int32 `json:"amount"`
+	Measure string `json:"measureLabel"` //label or description
+	MassEq float64	`json:"massEq"` //mass of the described measure, in grams
+}	
 
 var UnitReference = []Unit{
 	{Labels: []string{"tsp","teaspoon"}, MeasureType: "volume", TypeEquivalent: 4.92892},
@@ -39,9 +57,6 @@ var UnitReference = []Unit{
 	{Labels: []string{"g","gram"}, MeasureType: "mass", TypeEquivalent: 1},
 }
 
-var FractionRunes = map[float64]rune {
-	.25: 
-}
 var UnitMap = make(map[string]Unit)
 
 // RegisterUnit adds a Unit struct to the Map of all valid units
