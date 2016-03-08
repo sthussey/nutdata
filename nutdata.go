@@ -20,6 +20,8 @@ var FractionRunes = map[float64]rune {
 }
 
 func main(){
+	initializeConfig()
+	initializeDatastore()
 	for _, u := range UnitReference {
 		RegisterUnit(u)
 	}

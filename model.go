@@ -42,6 +42,33 @@ type USDAFoodWeight struct {
 	MassEq float64	`json:"massEq"` //mass of the described measure, in grams
 }	
 
+// This struct represents a single record of the USDA
+// Food Description file. Some fields are omitted.
+type USDAFoodDesc struct {
+	FoodID string `json:"foodID"`
+	LongDesc string `json:"longDesc"`
+	ShortDesc string `json:"shortDesc"`
+	Aliases string `json:"aliases"`
+	Manufacturer string `json:"manuf"`
+}
+
+// This struct represents a single record of the USDA
+// Nutrient Definition file. Some fields are omitted.
+type USDANutrientDef struct {
+	NutID string `json:"nutID"`
+	Unit	string `json:"unit"`
+	Tag	string `json:"tag"`
+	Desc string `json:"desc"`
+}
+
+// This struct represents a single record of the USDA
+// Nutrient Data file. Some fields are omitted
+type USDANutrientData {
+	FoodID string `json:"foodID"`
+	NutID string `json:"nutID"`
+	Amount float64 `json:"amount"`
+}
+
 var UnitReference = []Unit{
 	{Labels: []string{"tsp","teaspoon"}, MeasureType: "volume", TypeEquivalent: 4.92892},
 	{Labels: []string{"tbsp","tablespoon"}, MeasureType: "volume", TypeEquivalent: 14.7868},

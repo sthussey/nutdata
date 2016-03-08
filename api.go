@@ -75,6 +75,6 @@ func IndexFoodWeightService(w http.ResponseWriter, r *http.Request){
 		}		
 	  err = IndexUSDAFoodWeight(foodWeight)
 	}	
-
-	
 }
+
+func Index

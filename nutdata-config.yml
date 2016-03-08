@@ -1,0 +1,2 @@
+datasource.elasticsearch.url:	http://data:9200
+datasource.mongodb.url:	http://data:27017 
