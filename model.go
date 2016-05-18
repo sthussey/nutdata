@@ -63,7 +63,7 @@ type USDANutrientDef struct {
 
 // This struct represents a single record of the USDA
 // Nutrient Data file. Some fields are omitted
-type USDANutrientData {
+type USDANutrientData struct {
 	FoodID string `json:"foodID"`
 	NutID string `json:"nutID"`
 	Amount float64 `json:"amount"`

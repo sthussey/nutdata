@@ -18,7 +18,8 @@ type ConversionRequest struct {
 func startService(){
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/measure/convert", ConvertWebService)
-	router.HandleFunc("/foodweight/index", IndexFoodWeightService)
+	router.HandleFunc("/foodweights", FoodWeightService)
+	router.HandleFunc("/fooddescriptions", FoodDescService)
 	log.Fatal(http.ListenAndServe(":8088", router))
 }
 
@@ -59,7 +60,7 @@ func ConvertWebService(w http.ResponseWriter, r *http.Request) {
 	return 
 }
 
-func IndexFoodWeightService(w http.ResponseWriter, r *http.Request){
+func FoodWeightService(w http.ResponseWriter, r *http.Request){
 	if r.Header.Get("Content-Type") != "text/plain" || r.Body == nil || r.Method != "POST" {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w,"Invalid request: this service requires a POST request in text/plain format")
@@ -71,10 +72,40 @@ func IndexFoodWeightService(w http.ResponseWriter, r *http.Request){
 	for reqBody.Scan() {
 		foodWeight,err := ParseUSDAFoodWeight(reqBody.Text())
 		if err != nil {
-			log.Printf("Error: Could not parse food weight record - ", err)
+			log.Printf("Error: Could not parse food weight record - %s\n", err)
 		}		
+		err = PersistUSDAFoodWeight(foodWeight)
+		if err != nil {
+			log.Printf("Error: Could not persist food weight record - %s\n", err)
+		} 
 	  err = IndexUSDAFoodWeight(foodWeight)
+		if err != nil {
+			log.Printf("Error: Could not index food weight record - %s\n", err)
+		}
 	}	
 }
 
-func Index
+func FoodDescService(w http.ResponseWriter, r *http.Request){
+	if r.Header.Get("Content-Type") != "text/plain" || r.Body == nil || r.Method != "POST" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w,"Invalid request: this service requires a POST request in text/plain format")
+		return
+	}
+
+	var reqBody = bufio.NewScanner(r.Body)
+
+	for reqBody.Scan() {
+		foodDesc,err := ParseUSDAFoodDesc(reqBody.Text())
+		if err != nil {
+			log.Printf("Error: Could not parse food desc record - %s\n", err)
+		}		
+		err = PersistUSDAFoodDesc(foodDesc)
+		if err != nil {
+			log.Printf("Error: Could not persist food desc record - %s\n", err)
+		} 
+	  err = IndexUSDAFoodDesc(foodDesc)
+		if err != nil {
+			log.Printf("Error: Could not index food desc record - %s\n", err)
+		}
+	}	
+}
